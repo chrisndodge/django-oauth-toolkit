@@ -4,7 +4,7 @@ import six
 import base64
 import binascii
 import logging
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from django.utils import timezone
 from django.conf import settings
@@ -304,7 +304,24 @@ class OAuth2Validator(RequestValidator):
             except RefreshToken.DoesNotExist:
                 assert()  # TODO though being here would be very strange, at least log the error
 
-        expires = timezone.now() + timedelta(seconds=oauth2_settings.ACCESS_TOKEN_EXPIRE_SECONDS)
+        # change to django-oauth_toolike
+        # Allow the admin to specify the duration of the OAuth2 Access Token for a given Application
+        # (aka OAuth2 client). IMPORTANT: This can be a negative number in the case we want
+        # to immediately expire tokens
+        expire_in_seconds = (
+            request.client.access_token_expire_seconds
+            if request.client.access_token_expire_seconds else oauth2_settings.ACCESS_TOKEN_EXPIRE_SECONDS
+        )
+
+        if expire_in_seconds > 0:
+            # if expires in the future (normal case)
+            # then just create an absolute expiration datetime relative to now
+            expires = timezone.now() + timedelta(seconds=expire_in_seconds)
+        else:
+            # just to be safe, if admin specified a negative number for the
+            # expires in, let's set the date way in the past
+            expires = datetime(1970, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+
         if request.grant_type == 'client_credentials':
             request.user = None
 
@@ -326,7 +343,7 @@ class OAuth2Validator(RequestValidator):
             refresh_token.save()
 
         # TODO check out a more reliable way to communicate expire time to oauthlib
-        token['expires_in'] = oauth2_settings.ACCESS_TOKEN_EXPIRE_SECONDS
+        token['expires_in'] = expire_in_seconds
 
     def revoke_token(self, token, token_type_hint, request, *args, **kwargs):
         """

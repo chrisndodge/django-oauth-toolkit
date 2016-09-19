@@ -73,6 +73,14 @@ class AbstractApplication(models.Model):
     name = models.CharField(max_length=255, blank=True)
     skip_authorization = models.BooleanField(default=False)
 
+    # Addition to django-oauth-toolkit
+    # We want admins to be able to restrict how long Access Tokens
+    # are valid for. This number can also be negative to
+    # immediately expire tokens.
+    #
+    # None = take from django.conf.settings (default behavior from upstream repo)
+    access_token_expire_seconds = models.IntegerField(null=True, blank=True)
+
     class Meta:
         abstract = True
 
