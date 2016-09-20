@@ -46,6 +46,7 @@ DEFAULTS = {
     'APPLICATION_MODEL': getattr(settings, 'OAUTH2_PROVIDER_APPLICATION_MODEL', 'oauth2_provider.Application'),
     'REQUEST_APPROVAL_PROMPT': 'force',
     'ALLOWED_REDIRECT_URI_SCHEMES': ['http', 'https'],
+    'OAUTH2_AUTHORIZATION_TEMPLATE_PATH': 'oauth2_provider/authorize.html',
 
     # Special settings that will be evaluated at runtime
     '_SCOPES': [],

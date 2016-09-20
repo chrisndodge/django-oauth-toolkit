@@ -319,7 +319,7 @@ class OAuth2Validator(RequestValidator):
             expires = timezone.now() + timedelta(seconds=expire_in_seconds)
         else:
             # just to be safe, if admin specified a negative number for the
-            # expires in, let's set the date way in the past
+            # expires in, let's set the date to be fixed to Jan. 1, 1970
             expires = datetime(1970, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 
         if request.grant_type == 'client_credentials':

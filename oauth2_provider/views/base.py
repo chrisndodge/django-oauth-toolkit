@@ -66,7 +66,10 @@ class AuthorizationView(BaseAuthorizationView, FormView):
     * Authorization code
     * Implicit grant
     """
-    template_name = 'oauth2_provider/authorize.html'
+
+    # allow for the Django template to be a setting for overriding
+    template_name = oauth2_settings.OAUTH2_AUTHORIZATION_TEMPLATE_PATH
+
     form_class = AllowForm
 
     server_class = oauth2_settings.OAUTH2_SERVER_CLASS
