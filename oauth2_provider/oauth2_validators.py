@@ -4,6 +4,7 @@ import six
 import base64
 import binascii
 import logging
+import time
 from datetime import timedelta, datetime
 
 from django.utils import timezone
@@ -313,14 +314,13 @@ class OAuth2Validator(RequestValidator):
             if request.client.access_token_expire_seconds else oauth2_settings.ACCESS_TOKEN_EXPIRE_SECONDS
         )
 
-        if expire_in_seconds > 0:
-            # if expires in the future (normal case)
-            # then just create an absolute expiration datetime relative to now
-            expires = timezone.now() + timedelta(seconds=expire_in_seconds)
-        else:
-            # just to be safe, if admin specified a negative number for the
-            # expires in, let's set the date to be fixed to Jan. 1, 1970
-            expires = datetime(1970, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        if expire_in_seconds <= 0:
+            # Just to be safe, if the sysadmin sets the expiry time to be in the past,
+            # meaning the access token is immediately expired, then let's put the
+            # expiry date back to the beginning of the epoch (i.e. Jan 1, 1970)
+            expire_in_seconds = -int(time.time())
+
+        expires = timezone.now() + timedelta(seconds=expire_in_seconds)
 
         if request.grant_type == 'client_credentials':
             request.user = None
