@@ -305,7 +305,7 @@ class OAuth2Validator(RequestValidator):
             except RefreshToken.DoesNotExist:
                 assert()  # TODO though being here would be very strange, at least log the error
 
-        # change to django-oauth_toolike
+        # change to django-oauth-toolkit
         # Allow the admin to specify the duration of the OAuth2 Access Token for a given Application
         # (aka OAuth2 client). IMPORTANT: This can be a negative number in the case we want
         # to immediately expire tokens
